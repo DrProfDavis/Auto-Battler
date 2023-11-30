@@ -15,7 +15,7 @@ original_bg_width, original_bg_height = background_image.get_size()
 scaled_bg_width = original_bg_width // 3
 scaled_bg_height = original_bg_height // 3
 background_image = pygame.transform.scale(background_image, (scaled_bg_width, scaled_bg_height))
-
+move_background = False
 
 # Set up the player image
 player_image = pygame.image.load("./Projects/Auto-Battler/images/cowboy.png")
@@ -30,8 +30,17 @@ initial_x_position = (width - scaled_width) // 2 + -100  # Adjust this to your d
 initial_y_position = height - scaled_height - 350  # Adjust this to your desired y-coordinate
 player_rect.topleft = (initial_x_position, initial_y_position)
 
+# Set up the button
+button_offset = 300
+button_rect = pygame.Rect(20, 20 + button_offset, 100, 50)
+button_color = (0, 255, 0)  # Green
+button_text = pygame.font.Font(None, 36).render("Move Left", True, (0, 0, 0))  # Black
+
 # Set up clock to control the frame rate
 clock = pygame.time.Clock()
+
+# Variable to control background movement
+move_background = False
 
 # Main game loop
 while True:
@@ -39,6 +48,10 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if button_rect.collidepoint(event.pos):
+                move_background = not move_background  # Toggle the state
+
 
     # Get the state of all keys
     keys = pygame.key.get_pressed()
@@ -49,14 +62,24 @@ while True:
     if keys[pygame.K_RIGHT] and player_rect.right < width:
         player_rect.x += 5
 
-    # Clear the screen
-    screen.fill((255, 255, 255))
+    # Move background left if the button is pressed
+    if move_background:
+        background_rect = background_image.get_rect()
+        screen.fill((255, 255, 255))
+        screen.blit(background_image, background_rect)
+        background_rect.x -= 500
 
     # Draw the background image
-    screen.blit(background_image, (0, -65))
+    else:
+        screen.fill((255, 255, 255))
+        screen.blit(background_image, (0, -65))
 
     # Draw the scaled player image
     screen.blit(player_image, player_rect)
+
+    # Draw the button
+    pygame.draw.rect(screen, button_color, button_rect)
+    screen.blit(button_text, (30, 30 + button_offset))
 
     # Update the display
     pygame.display.flip()
